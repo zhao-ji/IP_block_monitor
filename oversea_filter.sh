@@ -28,3 +28,5 @@ with open(environ["TODAY_SERVER"], "a") as r:
 
 sudo nmap -iL world_ip_list.txt --excludefile china_ip_list/china_ip_list.txt -PS -n -e eth1 --source-port 55555 --max-retries 0 -T insane &> /dev/null
 head -2 test_file  | grep -o '[[:digit:]]\{,3\}\.[[:digit:]]\{,3\}\.[[:digit:]]\{,3\}\.[[:digit:]]\{,3\}'
+
+# https://scans.io
