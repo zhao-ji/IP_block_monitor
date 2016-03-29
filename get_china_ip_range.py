@@ -35,3 +35,6 @@ china_ip_fuck = filter(lambda item: not isinstance(item, int), china_ip_range)
 
 for ip in china_ip:
     print inet_ntoa(pack("!L", ip))
+for tuple_range in china_ip_fuck:
+    for ip in range(tuple_range[0], tuple_range[1]+1):
+        print inet_ntoa(pack("!L", ip))
