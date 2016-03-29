@@ -52,7 +52,7 @@ for line in stdin:
     send(tcp_syn)
 ' &> /dev/null
 
-cat http_443_ip_sorted | sudo python -c '
+cat https_443_ip_sorted | sudo python -c '
 from sys import stdin
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
