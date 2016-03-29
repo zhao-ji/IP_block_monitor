@@ -39,7 +39,7 @@ with open(environ["TODAY_80_ACK"], "a") as ack_80,
     )
 ' &> /dev/null) &
 
-cut http_80_ip_sorted | sudo python -c '
+cat http_80_ip_sorted | sudo python -c '
 from sys import stdin
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
@@ -51,3 +51,19 @@ for line in stdin:
     tcp_syn = IP(dst=line.strip())/TCP(dport=80, sport=55555, flags="S", seq="1")
     send(tcp_syn)
 ' &> /dev/null
+
+cat http_443_ip_sorted | sudo python -c '
+from sys import stdin
+import logging
+logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
+
+from scapy.all import send
+from scapy.all import IP, TCP
+
+for line in stdin:
+    tcp_syn = IP(dst=line.strip())/TCP(dport=443, sport=55555, flags="S", seq="1")
+    send(tcp_syn)
+' &> /dev/null
+
+sleep 8m
+sudo kill $!
