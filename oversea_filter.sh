@@ -6,7 +6,7 @@ TODAY_80_ACK=$(date +%y_%m_%d_80_ack)
 TODAY_80_RST=$(date +%y_%m_%d_80_rst)
 TODAY_443_ACK=$(date +%y_%m_%d_443_ack)
 TODAY_443_RST=$(date +%y_%m_%d_443_rst)
-(sudo \
+( sudo \
     TODAY_80_ACK=$TODAY_80_ACK TODAY_80_RST=$TODAY_80_RST \
     TODAY_443_ACK=$TODAY_443_ACK TODAY_443_RST=$TODAY_443_RST \
     python -c '
@@ -19,18 +19,18 @@ from scapy.all import IP, TCP
 
 def store_pkg(pkg):
     if pkg.haslayer(IP) and pkg.haslayer(TCP):
-        if pkg[TCP].sport == 80 and pkg[TCP].flags == "SA" and pkg[TCP].ack == 2:
+        if pkg[TCP].sport == 80 and pkg[TCP].flags == 18 and pkg[TCP].ack == 2:
             ack_80.write(pkg[IP].src+"\n")
-        elif pkg[TCP].sport == 80 and pkg[TCP].flags == "R" and pkg[TCP].ack == 2:
+        elif pkg[TCP].sport == 80 and pkg[TCP].flags == 20 and pkg[TCP].ack == 2:
             rst_80.write(pkg[IP].src+"\n")
-        elif pkg[TCP].sport== 443 and pkg[TCP].flags == "SA" and pkg[TCP].ack == 2:
+        elif pkg[TCP].sport== 443 and pkg[TCP].flags == 18 and pkg[TCP].ack == 2:
             ack_443.write(pkg[IP].src+"\n")
-        elif pkg[TCP].sport == 443 and pkg[TCP].flags == "R" and pkg[TCP].ack == 2:
+        elif pkg[TCP].sport == 443 and pkg[TCP].flags == 20 and pkg[TCP].ack == 2:
             rst_443.write(pkg[IP].src+"\n")
 
-with open(environ["TODAY_80_ACK"], "a") as ack_80,
-    open(environ["TODAY_80_RST"], "a") as rst_80,
-    open(environ["TODAY_443_ACK"], "a") as ack_443,
+with open(environ["TODAY_80_ACK"], "a") as ack_80, \
+    open(environ["TODAY_80_RST"], "a") as rst_80, \
+    open(environ["TODAY_443_ACK"], "a") as ack_443, \
     open(environ["TODAY_443_RST"], "a") as rst_443:
     sniff(
         store=0, iface="eth1",
@@ -48,7 +48,8 @@ from scapy.all import send
 from scapy.all import IP, TCP
 
 for line in stdin:
-    tcp_syn = IP(dst=line.strip())/TCP(dport=80, sport=55555, flags="S", seq="1")
+    print line
+    tcp_syn = IP(dst=line.strip())/TCP(dport=80, sport=55555, flags="S", seq=1)
     send(tcp_syn)
 ' &> /dev/null
 
@@ -61,7 +62,8 @@ from scapy.all import send
 from scapy.all import IP, TCP
 
 for line in stdin:
-    tcp_syn = IP(dst=line.strip())/TCP(dport=443, sport=55555, flags="S", seq="1")
+    print line
+    tcp_syn = IP(dst=line.strip())/TCP(dport=443, sport=55555, flags="S", seq=1)
     send(tcp_syn)
 ' &> /dev/null
 
