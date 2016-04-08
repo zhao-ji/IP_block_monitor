@@ -39,7 +39,7 @@ with open(environ["TODAY_80_ACK"], "a") as ack_80, \
     )
 ' &> /dev/null) &
 
-cat http_80_ip_sorted | sudo python -c '
+comm -23 <(sort http_80_ip_sorted) <(python get_china_ip_range.py|sort) | sudo python -c '
 from sys import stdin
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
@@ -53,7 +53,9 @@ for line in stdin:
     send(tcp_syn)
 ' &> /dev/null
 
-cat https_443_ip_sorted | sudo python -c '
+comm -13 <(sort http_80_ip_sorted) \
+    <(comm -23 <(sort https_443_ip_sorted) <(python get_china_ip_range.py|sort)) \
+    | sudo python -c '
 from sys import stdin
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
