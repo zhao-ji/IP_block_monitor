@@ -23,14 +23,14 @@ from scapy.all import IP, UDP, DNS, DNSRR
 def store(pkg):
     if pkg.haslayer(UDP) and pkg.haslayer(DNS):
         if pkg[IP].src == "8.8.8.8" and pkg[DNSRR]:
-			for result in pkg[DNSRR]:
-				r.write(
-					"{name} {type} {address}\n".format(
-						name=result.rrname.rstrip("."),
-						type=result.type,
-						address=result.rdata,
-					)
-				)
+            for result in pkg[DNSRR]:
+                r.write(
+                    "{name} {type} {address}\n".format(
+                        name=result.rrname.rstrip("."),
+                        type=result.type,
+                        address=result.rdata,
+                    )
+                )
 
 with open(environ["TODAY_RECORD"], "a") as r:
     sniff(store=0, filter="src host 8.8.8.8 and udp port 53", prn=store)
@@ -47,15 +47,15 @@ from scapy.all import IP, UDP, DNS, DNSQR
 
 for line in stdin:
     dns_query = IP(dst="8.8.8.8")/UDP(dport=53)/DNS(
-		rd=1,
-		qd=DNSQR(qname=line.strip(), qtype=1),
-	)
+        rd=1,
+        qd=DNSQR(qname=line.strip(), qtype=1),
+    )
     send([dns_query, dns_query, dns_query])
 ' &> /dev/null
 
 # 休息三分钟后杀掉上个后台任务
 # http://stackoverflow.com/questions/1624691/linux-kill-background-task
-sleep 8m
+sleep 30s
 sudo kill $!
 
 popd
