@@ -5,10 +5,10 @@ ALEXA_DOWNLOAD_URL="http://s3.amazonaws.com/alexa-static/top-1m.csv.zip"
 TODAY_RECORD="scan_log/$(date +%y_%m_%d_record)"
 
 # 从alexa下载每日更新的全球前1M域名
-# pushd /home/nightwish/block_scan
-# wget $ALEXA_DOWNLOAD_URL -O top1m.zip 2> /dev/null
-# rm top-1m.csv
-# unzip top1m.zip
+pushd /home/nightwish/block_scan
+wget $ALEXA_DOWNLOAD_URL -O top1m.zip 2> /dev/null
+rm top-1m.csv
+unzip top1m.zip
 touch $TODAY_RECORD
 
 # 打开监控 关注域名的返回
@@ -57,3 +57,5 @@ for line in stdin:
 # http://stackoverflow.com/questions/1624691/linux-kill-background-task
 sleep 8m
 sudo kill $!
+
+popd
