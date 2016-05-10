@@ -22,22 +22,22 @@ from scapy.all import IP, UDP, DNS, DNSRR
 
 def store(pkg):
     if pkg.haslayer(UDP) and pkg.haslayer(DNS):
-        if pkg[IP].src == "8.8.8.8" and pkg[DNSRR]:
-            for result in pkg[DNSRR]:
+        if pkg[IP].src == "8.8.8.8" and pkg.haslayer(DNSRR):
+            for i in range(pkg[DNS].ancount):
                 r.write(
                     "{name} {type} {address}\n".format(
-                        name=result.rrname.rstrip("."),
-                        type=result.type,
-                        address=result.rdata,
+                        name=pkg[DNSRR][i].rrname.rstrip("."),
+                        type=pkg[DNSRR][i].type,
+                        address=pkg[DNSRR][i].rdata,
                     )
                 )
 
 with open(environ["TODAY_RECORD"], "a") as r:
     sniff(store=0, filter="src host 8.8.8.8 and udp port 53", prn=store)
-' &> /dev/null) &
+' &> /dev/null ) &
 
 # 向GOOGLE DNS服务器查询A记录
-cut -d, -f2 top-1m.csv|head -n 100| sudo python -c '
+cut -d, -f2 top-1m.csv|sudo python -c '
 from sys import stdin
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
@@ -55,7 +55,7 @@ for line in stdin:
 
 # 休息三分钟后杀掉上个后台任务
 # http://stackoverflow.com/questions/1624691/linux-kill-background-task
-sleep 30s
+sleep 8m
 sudo kill $!
 
 popd
