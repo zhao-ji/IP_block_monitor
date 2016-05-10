@@ -2,13 +2,13 @@
 # utf8
 
 ALEXA_DOWNLOAD_URL="http://s3.amazonaws.com/alexa-static/top-1m.csv.zip"
-TODAY_RECORD="log/$(date +%y_%m_%d_record)"
+TODAY_RECORD="scan_log/$(date +%y_%m_%d_record)"
 
 # 从alexa下载每日更新的全球前1M域名
-pushd /home/nightwish/block_monitor
-wget $ALEXA_DOWNLOAD_URL -O top1m.zip 2> /dev/null
-rm top-1m.csv
-unzip top1m.zip
+# pushd /home/nightwish/block_scan
+# wget $ALEXA_DOWNLOAD_URL -O top1m.zip 2> /dev/null
+# rm top-1m.csv
+# unzip top1m.zip
 touch $TODAY_RECORD
 
 # 打开监控 关注域名的返回
@@ -37,7 +37,7 @@ with open(environ["TODAY_RECORD"], "a") as r:
 ' &> /dev/null) &
 
 # 向GOOGLE DNS服务器查询A记录
-cut -d, -f2 top-1m.csv | sudo python -c '
+cut -d, -f2 top-1m.csv|head -n 100| sudo python -c '
 from sys import stdin
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
@@ -52,3 +52,8 @@ for line in stdin:
 	)
     send([dns_query, dns_query, dns_query])
 ' &> /dev/null
+
+# 休息三分钟后杀掉上个后台任务
+# http://stackoverflow.com/questions/1624691/linux-kill-background-task
+sleep 8m
+sudo kill $!
