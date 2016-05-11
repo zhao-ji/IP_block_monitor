@@ -20,27 +20,29 @@ import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 
 from scapy.all import sniff
-from scapy.all import IP, UDP, DNS, DNSRR
+from scapy.all import IP, UDP, DNS, DNSQR, DNSRR
 
 def store(pkg):
-    if pkg.haslayer(UDP) and pkg.haslayer(DNS):
-        if pkg[IP].src == "8.8.8.8" and pkg.haslayer(DNSRR):
-            for i in range(pkg[DNS].ancount):
+    if pkg.haslayer(DNS) and pkg.haslayer(DNSRR):
+        for i in range(pkg[DNS].ancount):
+            if pkg[DNSRR][i].type == 1:
                 r.write(
-                    "{name} {type} {address}\n".format(
+                    "{domain} {name} {address}\n".format(
+                        domain=pkg[DNSQR].qname.rstrip("."),
                         name=pkg[DNSRR][i].rrname.rstrip("."),
-                        type=pkg[DNSRR][i].type,
                         address=pkg[DNSRR][i].rdata,
                     )
                 )
 
 with open(environ["TODAY_RECORD"], "a") as r:
-    sniff(store=0, filter="src host 8.8.8.8 and udp port 53", prn=store)
-' &> /dev/null ) &
+    sniff(store=0, filter="src host 8.8.8.8 and udp port 53 and udp port 10002", prn=store)
+' &> /home/nightwish/block_scan/scan_log/log_error ) &
+# /dev/null ) &
 
 # 向GOOGLE DNS服务器查询A记录
 cut -d, -f2 top-1m.csv|sudo python -c '
 from sys import stdin
+
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 
@@ -48,7 +50,7 @@ from scapy.all import send
 from scapy.all import IP, UDP, DNS, DNSQR
 
 for line in stdin:
-    dns_query = IP(dst="8.8.8.8")/UDP(dport=53)/DNS(
+    dns_query = IP(dst="8.8.8.8")/UDP(sport=10002, dport=53)/DNS(
         rd=1,
         qd=DNSQR(qname=line.strip(), qtype=1),
     )
