@@ -7,6 +7,7 @@ TODAY_RECORD="scan_log/$(date +%y_%m_%d_record)"
 # 从alexa下载每日更新的全球前1M域名
 pushd /home/nightwish/block_scan
 wget $ALEXA_DOWNLOAD_URL -O top1m.zip 2> /dev/null
+rm top1m.zip
 rm top-1m.csv
 unzip top1m.zip
 touch $TODAY_RECORD
@@ -14,6 +15,7 @@ touch $TODAY_RECORD
 # 打开监控 关注域名的返回
 (sudo TODAY_RECORD=$TODAY_RECORD python -c '
 from os import environ
+
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 
