@@ -68,7 +68,7 @@ sudo kill $!
 
 # 找出所有外国IP 移除IPV4中的保留地址
 comm -23 <(cat $TODAY_RECORD|cut -d ' ' -f 3|sort -u) <(gzip -cd china_ip.gz) \
-	| grep -v -f reserved_address_block_regex >> $TODAY_SEND_LIST
+	| grep -v -f reserved_address_block_regex | sort -u >> $TODAY_SEND_LIST
 
 # 打开监控 关注syn-ack或rst-ack的返回
 (sudo TODAY_RECIEVE_LIST=$TODAY_RECIEVE_LIST python -c '
@@ -114,6 +114,6 @@ for line in stdin:
 sleep 8m
 sudo kill $!
 
-comm -23 <(cat $TODAY_SEND_LIST|sort -u) <(cat $TODAY_RECIEVE_LIST|sort -u) > $TODAY_DIFF
+comm -23 <(cat $TODAY_SEND_LIST) <(cat $TODAY_RECIEVE_LIST|sort -u) > $TODAY_DIFF
 
 popd
