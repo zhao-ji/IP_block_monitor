@@ -6,7 +6,7 @@ ERROR_LOG="scan_log/log_error"
 TODAY_RECORD="scan_log/$(date +%y_%m_%d_DNS_record)"
 TODAY_SEND_LIST="scan_log/$(date +%y_%m_%d_foreign_ip_list)"
 TODAY_RECIEVE_LIST="scan_log/$(date +%y_%m_%d_syn_ack_list)"
-TODAY_DIFF="scan_log/$(date +%y_%m_%d_block_ip)"
+TODAY_DIFF="scan_log/$(date +%y_%m_%d_diff)"
 
 pushd /home/nightwish/block_scan
 
@@ -16,8 +16,7 @@ wget $ALEXA_DOWNLOAD_URL -O top1m.zip 2> /dev/null
 unzip top1m.zip
 rm top1m.zip
 
-touch $TODAY_RECORD
-touch $TODAY_RECIEVE_LIST
+touch $TODAY_RECORD $TODAY_RECIEVE_LIST
 
 # 打开监控 关注域名的返回
 (sudo TODAY_RECORD=$TODAY_RECORD python -c '
