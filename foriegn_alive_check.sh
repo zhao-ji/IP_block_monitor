@@ -33,7 +33,7 @@ with open(environ["TODAY_RECIEVE"], "a") as r:
 ' &> $ERROR_LOG ) &
 
 # 同IP建立握手
-cat $TODAY_DIFF|sudo python -c '
+cat $TODAY_DIFF|grep '^[0-9\.]\{7,15\}$'|sudo python -c '
 from sys import stdin
 
 import logging
