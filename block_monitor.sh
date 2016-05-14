@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ALEXA_DOWNLOAD_URL="http://s3.amazonaws.com/alexa-static/top-1m.csv.zip"
-ERROR_LOG="/home/nightwish/block_scan/scan_log/log_error"
+ERROR_LOG="scan_log/log_error"
 
 TODAY_RECORD="scan_log/$(date +%y_%m_%d_DNS_record)"
 TODAY_SEND_LIST="scan_log/$(date +%y_%m_%d_foreign_ip_list)"
