@@ -5,6 +5,7 @@ scan_log/log_error
 
 # alexa file
 top-1m.csv
+top1m.zip
 
 # china ip list
 china_ip.gz
