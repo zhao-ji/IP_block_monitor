@@ -9,13 +9,16 @@ TODAY_SEND_LIST="scan_log/$(date +%y_%m_%d_foreign_ip_list)"
 TODAY_RECIEVE_LIST="scan_log/$(date +%y_%m_%d_syn_ack_list)"
 TODAY_DIFF="scan_log/$(date +%y_%m_%d_block_ip)"
 
-# 从alexa下载每日更新的全球前1M域名
 pushd /home/nightwish/block_scan
+
+# 从alexa下载每日更新的全球前1M域名
+rm top1m.zip top-1m.csv
 wget $ALEXA_DOWNLOAD_URL -O top1m.zip 2> /dev/null
-rm top1m.zip
-rm top-1m.csv
 unzip top1m.zip
+rm top1m.zip
+
 touch $TODAY_RECORD
+touch $TODAY_RECIEVE_LIST
 
 # 打开监控 关注域名的返回
 (sudo TODAY_RECORD=$TODAY_RECORD python -c '
@@ -81,8 +84,9 @@ from scapy.all import sniff
 from scapy.all import IP, TCP
 
 def store(pkg):
-    r.write("{flags} {address}\n".format(
-        flags=pkg[TCP].flags, address=pkg[IP].src))
+    if pkg.haslayer(TCP):
+        r.write("{flags} {address}\n".format(
+            flags=pkg[TCP].flags, address=pkg[IP].src))
 
 with open(environ["TODAY_RECIEVE_LIST"], "a") as r:
     sniff(
@@ -106,7 +110,7 @@ for line in stdin:
         dport=80, sport=10003,
         seq=10003, flags="S",
     )
-    send([tcp_syn, tcp_syn, tcp_syn])
+    send([tcp_syn, tcp_syn, tcp_syn], verbose=0)
 ' &> $ERROR_LOG
 
 # 休息三分钟后杀掉上个后台任务
@@ -114,6 +118,6 @@ for line in stdin:
 sleep 8m
 sudo kill $!
 
-comm -23 <(cat $TODAY_SEND_LIST) <(cat $TODAY_RECIEVE_LIST|sort -u) > $TODAY_DIFF
+comm -23 <(cat $TODAY_SEND_LIST) <(cut -d ' ' -f 2 $TODAY_RECIEVE_LIST|sort -u) > $TODAY_DIFF
 
 popd
