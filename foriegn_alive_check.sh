@@ -3,6 +3,7 @@
 STATION=$1
 TODAY_RECORD="scan_log/$(date +%y_%m_%d_$STATION)"
 TODAY_LUCKY="scan_log/$(date +%y_%m_%d_block_ip)"
+ERROR_LOG="scan_log/log_error"
 
 # 打开监控 关注syn-ack或rst-ack的返回
 (sudo TODAY_RECIEVE_LIST=$TODAY_RECORD python -c '
@@ -44,6 +45,11 @@ for line in stdin:
     send([tcp_syn, tcp_syn, tcp_syn], verbose=0)
 ' &> $ERROR_LOG
 
+# 休息三分钟后杀掉上个后台任务
+# http://stackoverflow.com/questions/1624691/linux-kill-background-task
+sleep 5m
+sudo kill $!
+
 source .fuck_info
 
-scp -P $BEIJING_POINT $TODAY_RECORD $BEIJJING_HOST:~/block_scan/$TODAY_RECORD
+scp -P $BEIJING_PORT $TODAY_RECORD $BEIJING_HOST:~/block_scan/$TODAY_RECORD
