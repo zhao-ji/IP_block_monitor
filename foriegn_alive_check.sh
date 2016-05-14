@@ -5,6 +5,8 @@ TODAY_RECORD="scan_log/$(date +%y_%m_%d_$STATION)"
 TODAY_LUCKY="scan_log/$(date +%y_%m_%d_block_ip)"
 ERROR_LOG="scan_log/log_error"
 
+touch $TODAY_RECORD
+
 # 打开监控 关注syn-ack或rst-ack的返回
 (sudo TODAY_RECIEVE_LIST=$TODAY_RECORD python -c '
 from os import environ
