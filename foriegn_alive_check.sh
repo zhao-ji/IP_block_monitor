@@ -55,7 +55,7 @@ for line in stdin:
 sleep 5m
 sudo kill $!
 
-cut -d ' ' -f 2 $TODAY_RECIEVE|sort -V > $TODAY_RECORD
+cut -d ' ' -f 2 $TODAY_RECIEVE|sort -V -u > $TODAY_RECORD
 
 source .fuck_info
 
