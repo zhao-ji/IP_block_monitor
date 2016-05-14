@@ -1,5 +1,4 @@
 #!/bin/sh
-# utf8
 
 ALEXA_DOWNLOAD_URL="http://s3.amazonaws.com/alexa-static/top-1m.csv.zip"
 ERROR_LOG="/home/nightwish/block_scan/scan_log/log_error"
@@ -119,5 +118,11 @@ sleep 8m
 sudo kill $!
 
 comm -23 <(cat $TODAY_SEND_LIST) <(cut -d ' ' -f 2 $TODAY_RECIEVE_LIST|sort -u) > $TODAY_DIFF
+
+source .fuck_info
+scp -P $HONGKONG_PORT $TODAY_DIFF $HONGKONG_HOST:~/block_scan/$TODAY_DIFF
+ssh -p $HONGKONG_PORT $HONGKONG_HOST "cd block_scan; bash foriegn_aliave_check.sh hongkong"
+scp -P $SEATTLE_PORT $TODAY_DIFF $SEATTLE_HOST:~/block_scan/$TODAY_DIFF
+ssh -p $SEATTLE_PORT $SEATTLE_HOST "cd block_scan; bash foriegn_aliave_check.sh hongkong"
 
 popd
