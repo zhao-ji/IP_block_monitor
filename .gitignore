@@ -1,0 +1,13 @@
+# log file
+scan_log/*record
+scan_log/*list
+scan_log/log_error
+
+# alexa file
+top-1m.csv
+
+# china ip list
+china_ip.gz
+
+# server info
+.fuck_info
