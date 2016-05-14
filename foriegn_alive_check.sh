@@ -1,12 +1,15 @@
 #!/bin/sh
 
 STATION=$1
+
 TODAY_RECORD="scan_log/$(date +%y_%m_%d_$STATION)"
+TODAY_RECIEVE_LIST="scan_log/$(date +%y_%m_%d_recieve)"
 TODAY_LUCKY="scan_log/$(date +%y_%m_%d_block_ip)"
+
 ERROR_LOG="scan_log/log_error"
 
 # 打开监控 关注syn-ack或rst-ack的返回
-(sudo TODAY_RECIEVE_LIST=$TODAY_RECORD python -c '
+(sudo TODAY_RECIEVE_LIST=$TODAY_RECIEVE_LIST python -c '
 from os import environ
 
 import logging
@@ -49,6 +52,8 @@ for line in stdin:
 # http://stackoverflow.com/questions/1624691/linux-kill-background-task
 sleep 5m
 sudo kill $!
+
+cut -d ' ' -f 2 $TODAY_RECIEVE_LIST|sort -t \. -n -u -k 1,1 -k 2,2 -k 3,3 -k 4,4 > $TODAY_RECORD
 
 source .fuck_info
 
