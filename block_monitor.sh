@@ -19,79 +19,30 @@ rm top1m.zip
 touch $TODAY_RECORD $TODAY_RECIEVE_LIST
 
 # 打开监控 关注域名的返回
-(sudo TODAY_RECORD=$TODAY_RECORD python -c '
-' &> $ERROR_LOG ) &
+(sudo python recieve_DNS_record.py 2> $ERROR_LOG >> $TODAY_RECORD)&
 
 # 向GOOGLE DNS服务器查询A记录
-cut -d, -f2 top-1m.csv|sudo python -c '
-from sys import stdin
+cut -d, -f2 top-1m.csv|sudo python send_DNS_request.py &> $ERROR_LOG
 
-import logging
-logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
+# 休息五分钟后把没有解析结果的域名再查一遍
+sleep 5m
+comm -23 <(cut -d, -f2 top-1m.csv|sort) <(cut -d ' ' -f1 $TODAY_RECORD|sort -u)\
+    | sudo python send_DNS_request.py &> $ERROR_LOG
 
-from scapy.all import send
-from scapy.all import IP, UDP, DNS, DNSQR
-
-for line in stdin:
-    dns_query = IP(dst="8.8.8.8")/UDP(sport=10002, dport=53)/DNS(
-        rd=1,
-        qd=DNSQR(qname=line.strip(), qtype=1),
-    )
-    send([dns_query, dns_query, dns_query])
-' &> $ERROR_LOG
-
-# 休息三分钟后杀掉上个后台任务
+# 休息五分钟后杀掉上个后台任务
 # http://stackoverflow.com/questions/1624691/linux-kill-background-task
-sleep 3m
+sleep 5m
 sudo kill $!
 
 # 找出所有外国IP 移除IPV4中的保留地址
-comm -23 <(cat $TODAY_RECORD|cut -d ' ' -f 3|grep '^[0-9\.]\{7,15\}$'|sort -u) <(gzip -cd china_ip.gz) \
+comm -23 <(cat $TODAY_RECORD|cut -d ' ' -f3|grep '^[0-9\.]\{7,15\}$'|sort -u) <(gzip -cd china_ip.gz) \
     |grep -v -f reserved_address_block_regex|sort -u >> $TODAY_SEND_LIST
 
 # 打开监控 关注syn-ack或rst-ack的返回
-(sudo TODAY_RECIEVE_LIST=$TODAY_RECIEVE_LIST python -c '
-from os import environ
-
-import logging
-logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
-
-from scapy.all import sniff
-from scapy.all import IP, TCP
-
-def store(pkg):
-    if pkg.haslayer(TCP):
-        record = "{flags} {address}\n".format(
-            flags=pkg[TCP].flags,
-            address=pkg[IP].src,
-        )
-        r.write(record)
-
-with open(environ["TODAY_RECIEVE_LIST"], "a") as r:
-    filter_string = (
-        "tcp src port 80 and tcp dst port 10003 and tcp[8:4]==10004 "
-        "and (tcp[tcpflags]==18 or tcp[tcpflags]==20)"
-    )
-    sniff(store=0, prn=store, filter=filter_string)
-' &> $ERROR_LOG ) &
+(sudo python recieve_ACK_or_RST.py 2> $ERROR_LOG >> $TODAY_RECIEVE_LIST)&
 
 # 同IP建立握手
-cat $TODAY_SEND_LIST|sudo python -c '
-from sys import stdin
-
-import logging
-logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
-
-from scapy.all import send
-from scapy.all import IP, TCP
-
-for line in stdin:
-    tcp_syn = IP(dst=line.strip())/TCP(
-        dport=80, sport=10003,
-        seq=10003, flags="S",
-    )
-    send([tcp_syn, tcp_syn, tcp_syn, tcp_syn], verbose=0)
-' &> $ERROR_LOG
+cat $TODAY_SEND_LIST|sudo python send_SYN_request.py &> $ERROR_LOG
 
 # 休息八分钟后杀掉上个后台任务
 # http://stackoverflow.com/questions/1624691/linux-kill-background-task

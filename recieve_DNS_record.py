@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from os import environ
+from sys import stdout
 
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 
 from scapy.all import sniff
-from scapy.all import IP, UDP, DNS, DNSQR, DNSRR
+from scapy.all import DNS, DNSQR, DNSRR
+
 
 def store(pkg):
     if pkg.haslayer(DNS) and pkg.haslayer(DNSRR):
@@ -18,7 +19,8 @@ def store(pkg):
                     name=pkg[DNSRR][i].rrname.rstrip("."),
                     address=pkg[DNSRR][i].rdata,
                 )
-                r.write(record)
+                stdout.write(record)
 
-with open(environ["TODAY_RECORD"], "a") as r:
-    sniff(store=0, filter="src host 8.8.8.8 and udp port 53 and udp port 10002", prn=store)
+if __name__ == "__main__":
+    filter_string = "src host 8.8.8.8 and udp port 53 and udp port 10002"
+    sniff(store=0, filter=filter_string, prn=store)
