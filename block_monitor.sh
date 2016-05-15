@@ -32,13 +32,12 @@ def store(pkg):
     if pkg.haslayer(DNS) and pkg.haslayer(DNSRR):
         for i in range(pkg[DNS].ancount):
             if pkg[DNSRR][i].type == 1:
-                r.write(
-                    "{domain} {name} {address}\n".format(
-                        domain=pkg[DNSQR].qname.rstrip("."),
-                        name=pkg[DNSRR][i].rrname.rstrip("."),
-                        address=pkg[DNSRR][i].rdata,
-                    )
+                record = "{domain} {name} {address}\n".format(
+                    domain=pkg[DNSQR].qname.rstrip("."),
+                    name=pkg[DNSRR][i].rrname.rstrip("."),
+                    address=pkg[DNSRR][i].rdata,
                 )
+                r.write(record)
 
 with open(environ["TODAY_RECORD"], "a") as r:
     sniff(store=0, filter="src host 8.8.8.8 and udp port 53 and udp port 10002", prn=store)
@@ -69,7 +68,7 @@ sudo kill $!
 
 # 找出所有外国IP 移除IPV4中的保留地址
 comm -23 <(cat $TODAY_RECORD|cut -d ' ' -f 3|grep '^[0-9\.]\{7,15\}$'|sort -u) <(gzip -cd china_ip.gz) \
-	| grep -v -f reserved_address_block_regex | sort -u >> $TODAY_SEND_LIST
+    |grep -v -f reserved_address_block_regex|sort -u >> $TODAY_SEND_LIST
 
 # 打开监控 关注syn-ack或rst-ack的返回
 (sudo TODAY_RECIEVE_LIST=$TODAY_RECIEVE_LIST python -c '
@@ -83,14 +82,18 @@ from scapy.all import IP, TCP
 
 def store(pkg):
     if pkg.haslayer(TCP):
-        r.write("{flags} {address}\n".format(
-            flags=pkg[TCP].flags, address=pkg[IP].src))
+        record = "{flags} {address}\n".format(
+            flags=pkg[TCP].flags,
+            address=pkg[IP].src,
+        )
+        r.write(record)
 
 with open(environ["TODAY_RECIEVE_LIST"], "a") as r:
-    sniff(
-        store=0, prn=store,
-        filter="tcp src port 80 and tcp dst port 10003 and tcp[8:4]==10004 and (tcp[tcpflags]==18 or tcp[tcpflags]==20)",
+    filter_string = (
+        "tcp src port 80 and tcp dst port 10003 and tcp[8:4]==10004 "
+        "and (tcp[tcpflags]==18 or tcp[tcpflags]==20)"
     )
+    sniff(store=0, prn=store, filter=filter_string)
 ' &> $ERROR_LOG ) &
 
 # 同IP建立握手
@@ -108,10 +111,10 @@ for line in stdin:
         dport=80, sport=10003,
         seq=10003, flags="S",
     )
-    send([tcp_syn, tcp_syn, tcp_syn], verbose=0)
+    send([tcp_syn, tcp_syn, tcp_syn, tcp_syn], verbose=0)
 ' &> $ERROR_LOG
 
-# 休息三分钟后杀掉上个后台任务
+# 休息八分钟后杀掉上个后台任务
 # http://stackoverflow.com/questions/1624691/linux-kill-background-task
 sleep 8m
 sudo kill $!
