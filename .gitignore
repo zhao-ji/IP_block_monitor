@@ -1,7 +1,5 @@
 # log file
-scan_log/*record
-scan_log/*list
-scan_log/log_error
+scan_log/*
 
 # alexa file
 top-1m.csv
