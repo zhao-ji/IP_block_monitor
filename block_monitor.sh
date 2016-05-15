@@ -119,9 +119,9 @@ sudo kill $!
 comm -23 <(cat $TODAY_SEND_LIST) <(cut -d ' ' -f 2 $TODAY_RECIEVE_LIST|sort -u) > $TODAY_DIFF
 
 source .fuck_info
-# scp -P $HONGKONG_PORT $TODAY_DIFF $HONGKONG_HOST:~/block_scan/$TODAY_DIFF
-# ssh -p $HONGKONG_PORT $HONGKONG_HOST "cd block_scan; bash foriegn_aliave_check.sh hongkong"
-scp -P $SEATTLE_PORT $TODAY_DIFF $SEATTLE_HOST:~/block_scan/$TODAY_DIFF
-ssh -p $SEATTLE_PORT $SEATTLE_HOST "cd block_scan; bash foriegn_aliave_check.sh hongkong"
+scp -P $HONGKONG_PORT $TODAY_DIFF $HONGKONG_HOST:~/block_scan/$TODAY_DIFF
+ssh -p $HONGKONG_PORT $HONGKONG_HOST "cd block_scan; bash foriegn_alive_check.sh hongkong"
+# scp -P $SEATTLE_PORT $TODAY_DIFF $SEATTLE_HOST:~/block_scan/$TODAY_DIFF
+# ssh -p $SEATTLE_PORT $SEATTLE_HOST "cd block_scan; bash foriegn_alive_check.sh hongkong"
 
 popd
