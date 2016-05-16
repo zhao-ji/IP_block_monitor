@@ -1,8 +1,9 @@
 #!/bin/env python
-# utf8
+# coding: utf-8
 
 from socket import inet_aton, inet_ntoa
 from struct import pack, unpack
+from sys import stdout
 
 
 def ip_to_int(ip):
@@ -27,15 +28,20 @@ with open("china_ip_list/china_ip_list.txt") as f:
 china_ip_list = china_ip_list.strip("\n").split("\n")
 china_ip_list = map(
     lambda range_str: range_str.split("/"),
-    china_ip_list)
+    china_ip_list,
+)
 
 china_ip_range = map(get_china_ip_range, china_ip_list)
 china_ip = filter(lambda item: isinstance(item, int), china_ip_range)
 china_ip_fuck = filter(lambda item: not isinstance(item, int), china_ip_range)
 
 for ip in china_ip:
-    print inet_ntoa(pack("!L", ip))
+    stdout.write(inet_ntoa(pack("!L", ip)) + "\n")
 for tuple_range in china_ip_fuck:
-    # print tuple_range[0], tuple_range[1]
+    # record = "{start} {stop}\n".format(
+    #     start=inet_ntoa(pack("!L", tuple_range[0])),
+    #     stop=inet_ntoa(pack("!L", tuple_range[1])),
+    # )
+    # stdout.write(record)
     for ip in range(tuple_range[0], tuple_range[1]+1):
-        print inet_ntoa(pack("!L", ip))
+        stdout.write(inet_ntoa(pack("!L", ip)) + "\n")
