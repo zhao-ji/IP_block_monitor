@@ -9,12 +9,12 @@ TODAY_RECIEVE_LIST="scan_log/$(date +%y_%m_%d_syn_ack_list)"
 TODAY_DIFF="scan_log/$(date +%y_%m_%d_diff)"
 
 pushd /home/nightwish/block_scan
+source .fuck_info
 
 # 从alexa下载每日更新的全球前1M域名
 rm top1m.zip top-1m.csv
-wget $ALEXA_DOWNLOAD_URL -O top1m.zip 2> /dev/null
+wget $ALEXA_DOWNLOAD_URL -e use_proxy=yes -e http_proxy=$PROXY_INSTANCE -O top1m.zip 2> /dev/null
 unzip top1m.zip
-rm top1m.zip
 
 touch $TODAY_RECORD $TODAY_RECIEVE_LIST
 
@@ -36,7 +36,7 @@ sudo kill $!
 
 # 找出所有外国IP 移除IPV4中的保留地址
 comm -23 <(cat $TODAY_RECORD|cut -d ' ' -f3|grep '^[0-9\.]\{7,15\}$'|sort -u) <(gzip -cd china_ip.gz) \
-    |grep -v -f reserved_address_block_regex|sort -u >> $TODAY_SEND_LIST
+    |grep -v -f reserved_IP_block_regex|sort -u >> $TODAY_SEND_LIST
 
 # 打开监控 关注syn-ack或rst-ack的返回
 (sudo python recieve_ACK_or_RST.py 2> $ERROR_LOG >> $TODAY_RECIEVE_LIST)&
@@ -51,7 +51,6 @@ sudo kill $!
 
 comm -23 <(cat $TODAY_SEND_LIST) <(cut -d ' ' -f 2 $TODAY_RECIEVE_LIST|sort -u) > $TODAY_DIFF
 
-source .fuck_info
 scp -P $HONGKONG_PORT $TODAY_DIFF $HONGKONG_HOST:~/block_scan/$TODAY_DIFF
 ssh -p $HONGKONG_PORT $HONGKONG_HOST "cd block_scan; bash foriegn_alive_check.sh hongkong"
 # scp -P $SEATTLE_PORT $TODAY_DIFF $SEATTLE_HOST:~/block_scan/$TODAY_DIFF
