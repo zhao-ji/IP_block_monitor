@@ -11,9 +11,9 @@ join -1 2 -2 1 \
 		<(cut -d, -f2 ../top-1m.csv|sort) \
 		<(cat ../scan_log/16_05_23_DNS_record|cut -d ' ' -f 1|sort) \
         | sort \
-	) | awk '{print $2, $1}' > lost_domain
+	) | awk '{print $2, $1}' | sort -k1 -n > lost_domain
 
-comm -23 <(cat ../scan_log/16_05_23_foreign_ip_list|sort) <(cat ../scan_log/16_05_23_hongkong|sort) > lost_ip
+comm -23 <(cat ../scan_log/16_05_23_foreign_ip_list|sort) <(cat ../scan_log/16_05_23_hongkong|sort) | sort -V > lost_ip
 
 join -1 2 -2 1 \
 	<( cat ../top-1m.csv | sed 's/,/ /g' | sort -k 2) \
