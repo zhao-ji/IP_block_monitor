@@ -37,7 +37,7 @@ sleep 5m
 sudo kill $!
 
 # 找出所有外国IP 移除IPV4中的保留地址
-comm -23 <(cat $TODAY_RECORD|cut -d ' ' -f3|grep '^[0-9\.]\{7,15\}$'|sort -u) <(gzip -cd china_ip.gz) \
+comm -23 <(cat $TODAY_RECORD|cut -d ' ' -f3|grep '^[0-9\.]\{7,15\}$'|sort -u) <(zcat china_ip.gz) \
     |grep -v -f reserved_IP_block_regex|sort -u >> $TODAY_SEND_LIST
 
 # 打开监控 关注syn-ack或rst-ack的返回
