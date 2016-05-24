@@ -28,7 +28,7 @@ cut -d, -f2 top-1m.csv|sudo python send_DNS_request.py &> $ERROR_LOG
 
 # 休息五分钟后把没有解析结果的域名再查一遍
 sleep 5m
-comm -23 <(cut -d, -f2 top-1m.csv|sort) <(cut -d ' ' -f1 $TODAY_RECORD|sort -u)\
+comm -23 <(cut -d, -f2 top-1m.csv|sort) <(cut -d ' ' -f1 $TODAY_RECORD|sort -u) \
     | sudo python send_DNS_request.py &> $ERROR_LOG
 
 # 休息五分钟后杀掉上个后台任务
