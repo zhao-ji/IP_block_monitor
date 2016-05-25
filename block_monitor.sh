@@ -34,14 +34,14 @@ touch $DNS_RECORD $RECV_HOST
 cut -d, -f2 useless/top-1m.csv|sudo python send_DNS_request.py &> $ERROR_LOG
 
 # 休息五分钟后把没有解析结果的域名再查一遍
-sleep 5m
+sleep 2m
 comm -23 <(cut -d, -f2 useless/top-1m.csv|sort) \
     <(cut -d ' ' -f1 $DNS_RECORD|sort -u) \
     | sudo python send_DNS_request.py &> $ERROR_LOG
 
 # 休息五分钟后杀掉上个后台任务
 # http://stackoverflow.com/questions/1624691/linux-kill-background-task
-sleep 5m
+sleep 2m
 sudo kill $!
 
 # 找出所有外国IP 移除IPV4中的保留地址
@@ -56,7 +56,7 @@ cat $SEND_HOST|sudo python send_SYN_request.py &> $ERROR_LOG
 
 # 休息八分钟后杀掉上个后台任务
 # http://stackoverflow.com/questions/1624691/linux-kill-background-task
-sleep 8m
+sleep 2m
 sudo kill $!
 
 comm -23 <(cat $SEND_HOST) <(cut -d ' ' -f 2 $RECV_HOST|sort -u) > $DIFF
@@ -69,7 +69,7 @@ join -1 2 -2 1 \
 	<( join -1 3 -2 1 \
 		<(cat $DNS_RECORD | sort -k 3 -u) \
 		<(cat $DIFF | sort) \
-        | awk '{print $2, $3, $1}' | sort \
+        | awk '{print $2, $3, $1}' | sort -k 1 \
 	) | sort -k 2 -n | awk '{print $2, $1, $3, $4}' > $HOST_LOST
 
 popd

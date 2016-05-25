@@ -1,8 +1,9 @@
 # log file
 scan_log/*
+useless/log_error
 
 # alexa file
-top-1m.csv
+useless/top-1m.csv
 top1m.zip
 
 # china ip list
