@@ -1,5 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
+set -x
 export LC_MESSAGES=C
 
 ALEXA_DOWNLOAD_URL="http://s3.amazonaws.com/alexa-static/top-1m.csv.zip"
