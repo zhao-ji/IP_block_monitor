@@ -2,7 +2,7 @@
 
 # 开启debug模式 排序按C模式
 set -x
-export LC_MESSAGES=C
+export LC_ALL=C
 
 ALEXA_DOWNLOAD_URL="http://s3.amazonaws.com/alexa-static/top-1m.csv.zip"
 
@@ -64,12 +64,12 @@ comm -23 <(cat $SEND_HOST) <(cut -d ' ' -f 2 $RECV_HOST|sort -u) > $DIFF
 scp -P $HONGKONG_PORT $DIFF $HONGKONG_HOST:~/block_scan/$DIFF
 ssh -p $HONGKONG_PORT $HONGKONG_HOST "cd block_scan; bash foriegn_alive_check.sh hongkong"
 
-join -1 2 -2 1 \
-	<( LC_MESSAGES=C cat useless/top-1m.csv | sed 's/,/ /g' | sort -k 2) \
-	<( LC_MESSAGES=C join -1 3 -2 1 \
-		<(LC_MESSAGES=C cat $DNS_RECORD | sort -k 3 -u) \
-		<(cat $DIFF | sort) \
-        | awk '{print $2, $3, $1}' | sort -k 1 \
+LC_ALL=C join -1 2 -2 1 \
+	<( cat useless/top-1m.csv | sed 's/,/ /g' | LC_ALL=C sort -k 2) \
+	<( LC_ALL=C join -1 3 -2 1 \
+		<(cat $DNS_RECORD| LC_ALL=C sort -k 3 -u) \
+		<(cat $DIFF| LC_ALL=C sort -k 1) \
+        | awk '{print $2, $3, $1}' | LC_ALL=C sort -k 1 \
 	) | sort -k 2 -n | awk '{print $2, $1, $3, $4}' > $HOST_LOST
 
 popd
